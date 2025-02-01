@@ -7,12 +7,15 @@ Four bash scripts, and a python script are used to identify/report the CRISPR ge
 Input:
 
 A txt file containing clinical data (named clinical_data.txt).
+
 A file called motif_list.txt containing a list of motifs (one motif per line) that the script will search for.
+
 A directory containing FASTA files of animal exomes (named exomes).
 
 Output:
 
 Multiple sets of FASTA file sets: exomesCohort, topMotifs, preCrispr, postCrispr. These FASTA file sets are in respectively named directories.
+
 A text file (report.txt) summarizing the findings.
 
 How to Run:
@@ -20,12 +23,21 @@ How to Run:
 To execute the script, navigate to the directory containing the script files (ensuring the above input files are in the same directory) and run:
 
 chmod +X copyExomes.sh
+
 bash copyExomes.sh
+
 chmod +X createCrisprReady.sh
+
 bash createCrisprReady.sh
+
 chmod +X identifyCrisprSite.sh
+
 bash identifyCrisprSite.sh
+
 chmod +X editGenome.sh
+
 bash editGenome.sh
+
 chmod +X exomeReport.py
+
 python3 exomeReport.py
