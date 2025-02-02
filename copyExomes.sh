@@ -4,7 +4,7 @@
 exomeArray=()
 
 #Loops through clinical data (skipping first line), storing column values as variables, and storing code names of desired exomes
-while read discoverer location diameter environment status code
+while IFS=$'\t\n' read discoverer location diameter environment status code
 do
   if (( $diameter >= 20 && $diameter <= 30 ))
   then

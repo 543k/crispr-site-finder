@@ -1,7 +1,16 @@
 #!/bin/sh
 
+#Create blank array for motifs to be stored in
+motifArray=()
+
+#Create empty dictionary for motif counts to be stored
+declare -A countDict
+
 #Makes a list of unique motifs, and empty array for the FASTA files
-motifs=$(sort motif_list.txt | uniq)
+while read motif
+do
+  motifArray+=($motif)
+done < motif_list.txt
 
 #Makes a directory to hold topMotif FASTA files
 mkdir exomesCohort/topMotifs
@@ -9,7 +18,15 @@ mkdir exomesCohort/topMotifs
 #Loops through FASTA files in exomesCohort directory looking for frequent motifs
 for exome in exomesCohort/*.fasta
 do
-  #Variables declared for frequent motifs
+  #Extracts exome code name from file path
+  exomeCode=$(basename $exome .fasta)
+  #Finds motif frequency
+  for motif in ${motifArray[@]}
+  do
+    count=$(grep -Fo $motif $exome| wc -l)
+    countDict[$motif]=$count
+  done
+  #Finds the three most frequent motifs
   firstMost=0
   firstMotif=""
   
@@ -18,36 +35,32 @@ do
   
   thirdMost=0
   thirdMotif=""
-
-  #Finds three most frequent motifs, updating every loop
-  for motif in $motifs
+  for key in ${!countDict[@]}
   do
-    current=$(grep -o -c '$motif' $exome)
-    if (( $current >= $firstMost ))
-    then
-      thirdMost=$secondMost
-      thirdMotif=$secondMotif
+  current=${countDict[$key]}
+  if (( $current >= $firstMost ))
+  then
+    thirdMost=$secondMost
+    thirdMotif=$secondMotif
 
-      secondMost=$firstMost
-      secondMotif=$firstMotif
+    secondMost=$firstMost
+    secondMotif=$firstMotif
 
-      firstMost=$current
-      firstMotif=$motif
-    elif (( $current >= $secondMost ))
-    then
-      thirdMost=$secondMost
-      thirdMotif=$secondMotif
+    firstMost=$current
+    firstMotif=$key
+  elif (( $current >= $secondMost ))
+  then
+    thirdMost=$secondMost
+    thirdMotif=$secondMotif
 
-      secondMost=$current
-      secondMotif=$motif
-    elif (( $current >= $thirdMost ))
-    then
-      thirdMost=$current
-      thirdMotif=$motif
-    fi
+    secondMost=$current
+    secondMotif=$key
+  elif (( $current >= $thirdMost ))
+  then
+    thirdMost=$current
+    thirdMotif=$key
+  fi
   done
-  #Extracts exome code name from file path
-  exomeCode=$(basename $exome .fasta)
   #Array of genes looped through looking for ones with the frequent motifs
   geneArray=($(awk 'BEGIN{RS=">";} NR>1{print ">" $0;}' "$exome"))
   for gene in "${geneArray[@]}"
@@ -61,4 +74,3 @@ do
     temp=$gene
   done
 done
-  
